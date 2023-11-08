@@ -1,4 +1,4 @@
-/* const products =[
+const products =[
     {
         "name": "Lavadora",
         "marca": "LG",
@@ -73,4 +73,4 @@ export {
     createProduct,
     updateProduct,
     removeProduct,
-}; */
+};
