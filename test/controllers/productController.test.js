@@ -1,52 +1,62 @@
-import Product from "../../src/models/productModel";
+import productController from "../../src/controllers/productController.js";
+import db from "../../src/config/db.js";
 
 
-describe("Tests de productController", () => {
-    let id = null;
-    const nombre = "";
-    const descripcion = "";
-    const precio = 5000;
+describe("Test de productController", function () {
 
-    test("Crear un producto nuevo",async () => {
-        const product = await Product.create({nombre, descripcion, precio});
+    let productId = 0;
+    beforeAll(async () => {
+        await db;
+    });
+    test("Create product", async () => {
+        const nombre = "TestCreate";
+        const descripcion = "TestCreate";
+        const precio = 100;
+        const product = await productController.createProduct(nombre, descripcion, precio);
+        console.log(product);
+        productId = product._id;
         expect(product).not.toBeNull();
-        expect(product).not.toBeUndefined();
+        expect(product._id).not.toBeNull();
         expect(product.nombre).toEqual(nombre);
         expect(product.descripcion).toEqual(descripcion);
         expect(product.precio).toEqual(precio);
-        id = product._id;
     });
 
-    test("Conseguir todos los productos", async () => {
-        const productos = await Product.find();
-        expect(productos.length).toBeGreaterThan(0);
-        expect(productos[0]).toHaveProperty("nombre");
-        expect(productos[0]).toHaveProperty("descripcion");
-        expect(productos[0]).toHaveProperty("precio");
-    })
-    test("Conseguir un producto por id", async () => {
-        const producto = await Product.findOne({_id:id});
-        expect(producto).not.toBeNull();
-        expect(producto).not.toBeUndefined();
-        expect(producto.nombre).toEqual(nombre);
-        expect(producto.descripcion).toEqual(descripcion);
-        expect(producto.precio).toEqual(precio);
-    })
-    test("Editar un producto por id", async () => {
-        const producto = await Product.findOne({_id:id});
-        producto.nombre = "Anderoid";
-        producto.precio = 9999,
-        producto.save();
-        const productoEditado = await Product.findOne({_id:id});
-        expect(productoEditado).not.toBeNull();
-        expect(productoEditado).not.toBeUndefined();
-        expect(productoEditado.nombre).toEqual("Anderoid");
-        expect(productoEditado.descripcion).toEqual(descripcion);
-        expect(productoEditado.precio).toEqual(9999);
-    })
-    test("Eliminar un producto por id", async () => {
-        await Product.deleteOne({_id:id});
-        const oldProduct = await Product.findOne({_id:id});
-        expect(oldProduct).toBeNull();
-    })
+    test("Get all products", async function () {
+        const products = await productController.getAllProducts();
+        expect(products.length).toBeGreaterThan(0);
+        expect(products.find(p => p._id === productId)).not.toBeNull();
+    });
+
+    test("Get product by id", async function () {
+        const id = productId;
+        const product = await productController.getProductById(id);
+        expect(product).not.toBeNull();
+        expect(product._id).toEqual(id);
+        expect(product.nombre).toEqual("TestCreate");
+        expect(product.descripcion).toEqual("TestCreate");
+        expect(product.precio).toEqual(100);
+    });
+
+
+    test("Update product", async function () {
+        const id = productId;
+        const nombre = "TestUpdate";
+        const descripcion = "TestUpdate";
+        const precio = 200;
+        const product = await productController.updateProduct(id, nombre, descripcion, precio);
+        expect(product).not.toBeNull();
+        expect(product._id).toEqual(id);
+        expect(product.nombre).toEqual(nombre);
+        expect(product.descripcion).toEqual(descripcion);
+        expect(product.precio).toEqual(precio);
+    });
+
+    test("Delete product", async function () {
+        const id = productId;
+        await productController.deleteProduct(id);
+        const product = await productController.getProductById(id);
+        expect(product).toBeNull();
+    });
+
 });

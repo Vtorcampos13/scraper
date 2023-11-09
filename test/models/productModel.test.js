@@ -1,4 +1,5 @@
 import Product from "../../src/models/productModel";
+import moongose from "mongoose";
 
 
 describe("Tests de modelo de producto", () => {
@@ -6,6 +7,10 @@ describe("Tests de modelo de producto", () => {
     const nombre = "Aifon";
     const descripcion = "La manzanita querida";
     const precio = 5000;
+
+    afterAll(async () => {
+        await moongose.disconnect();
+    });
 
     test("Crear un producto nuevo",async () => {
         const product = await Product.create({nombre, descripcion, precio});
@@ -26,8 +31,8 @@ describe("Tests de modelo de producto", () => {
     })
     test("Conseguir un producto por id", async () => {
         const producto = await Product.findOne({_id:id});
-        expect(producto).not.toBeNull();
         expect(producto).not.toBeUndefined();
+        expect(producto).not.toBeNull();
         expect(producto.nombre).toEqual(nombre);
         expect(producto.descripcion).toEqual(descripcion);
         expect(producto.precio).toEqual(precio);
@@ -36,10 +41,10 @@ describe("Tests de modelo de producto", () => {
         const producto = await Product.findOne({_id:id});
         producto.nombre = "Anderoid";
         producto.precio = 9999,
-        producto.save();
+        await producto.save();
         const productoEditado = await Product.findOne({_id:id});
-        expect(productoEditado).not.toBeNull();
         expect(productoEditado).not.toBeUndefined();
+        expect(productoEditado).not.toBeNull();
         expect(productoEditado.nombre).toEqual("Anderoid");
         expect(productoEditado.descripcion).toEqual(descripcion);
         expect(productoEditado.precio).toEqual(9999);
