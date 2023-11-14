@@ -1,21 +1,29 @@
 import express from "express";
-import dotenv from "dotenv";
-import router from "./router/router.js";
+import productController from "./controllers/productController.js";
 
-dotenv.config();
 const app = express();
 
-app.use(express.static("public"));
+app.get("/",async (req,res)=>{
+    try{
+        const products = await productController.getAllProducts();
+        res.json(products);
+    }
+    catch(e){
+        res.status(500)("ha habido un error intentando conseguir los datos")
+    }
+})
 
-app.set('views', './src/views');
-app.set('view engine', 'pug');
+app.get("/scrap",async (req,res)=>{
+    try{
+        await productController.scrapProducts()
+        const products = await productController.getAllProducts();
+        res.json(products);
+    }
+    catch(e){
+        res.status(500)("ha habido un error intentando conseguir los datos")
+    }
+})
 
-app.get("/",(req,res)=>{
-    res.render("home");
-});
-
-app.use("/",router);
-
-app.listen(3008,()=>{
-    console.log("servidor en marcha en el puerto 3008");
-});
+app.listen(3000,()=>{
+    console.log("app en marcha en el puerto que sea")
+})
